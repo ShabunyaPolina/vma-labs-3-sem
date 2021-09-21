@@ -4,6 +4,10 @@
 #include <iostream>
 #include <vector>
 #include <algorithm>
+#include <iostream>
+#include <vector>
+#include <cstdlib>
+#include <ctime>
 
 // ввод коэффициентов уравнений СЛАУ
 void fill_system(std::vector<std::vector<double>> &a, std::vector<double> &b) {
@@ -25,7 +29,7 @@ void fill_system(std::vector<std::vector<double>> &a, std::vector<double> &b) {
     }
 }
 
-// вывод расширенной матрицы А СЛАУ
+// вывод расширенной матрицы СЛАУ
 void show_system(std::vector<std::vector<double>> &a, std::vector<double> &b) {
     int n = (int)a.size();
     for(int i = 0; i < n; ++i) {
@@ -70,16 +74,43 @@ void solve(std::vector<std::vector<double>> &a,
     }
 }
 
+// генерирует СЛАУ размерности 10
+void generate_system(std::vector<std::vector<double>> &a, std::vector<double> &f, int n) {
+    std::vector<double> x(n);
+    a.assign(n, std::vector<double>(n));
+    f.resize(n);
+    srand ( time(nullptr) );
+    const int MIN_RAND = -100;
+    const int MAX_RAND = 100;
+    // генерируем матрицу А и вектор Х
+    for(int i = 0; i < n; ++i) {
+        for (int j = 0; j < n; ++j) {
+            a[i][j] = MIN_RAND + rand() % (MAX_RAND - MIN_RAND + 1);
+        }
+        x[i] = MIN_RAND + rand() % (MAX_RAND - MIN_RAND + 1);
+    }
+    // высчитываем столбец f
+    for(int i = 0; i < n; ++i) {
+        for (int j = 0; j < n; ++j) {
+            f[i] += a[i][j] * x[j];
+        }
+    }
+}
+
 int main() {
     std::vector<std::vector<double>> a;
     std::vector<double> b;
     std::vector<double> x;
-    fill_system(a, b);
-    show_system(a, b);
-    solve(a, b, x);
-    show_system(a, b);
-    for(double i : x) {
-        std::cout << i << ' ';
-    }
+
+//    fill_system(a, b);
+//    show_system(a, b);
+//    solve(a, b, x);
+//    show_system(a, b);
+//    for(double i : x) {
+//        std::cout << i << ' ';
+//    }
+
+    generate_system(a, b, 10);
+    show_system(a,b);
     return 0;
 }
