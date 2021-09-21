@@ -40,11 +40,13 @@ void show_system(std::vector<std::vector<double>> &a, std::vector<double> &b) {
 void solve(std::vector<std::vector<double>> &a,
            std::vector<double> &b, std::vector<double> &x) {
     int n = (int)a.size();
+    x.resize(n);
     // прямой ход
     double l = 0;
     for(int k = 0; k < n - 1; ++k) {  // шаги
         for(int i = k + 1; i < n; ++i) {
             l = a[i][k] / a[k][k];
+            std::cout << "l = " << l << '\n';
             for(int j = k; j < n; ++j) {
                 a[i][j] -= l * a[k][j];
             }
@@ -53,21 +55,19 @@ void solve(std::vector<std::vector<double>> &a,
     }
     // обратный ход
     double s, xi;
-    x.push_back(0);
-    int v = 0;
     for(int i = n - 1; i >= 0; --i) {
         s = 0;
         for (int j = i; j < n; ++j) {
-            s += a[i][j] * x[v];
-            std::cout << s << '\n';
-            ++v;
+            s += a[i][j] * x[j];
+            for(double q : x) {
+                std::cout << q << ' ';
+            }
+            std::cout <<"s = " << s << '\n';
         }
         xi = (b[i] - s) / a[i][i];
         std::cout << xi << '\n';
-        x.push_back(xi);
+        x[i] = xi;
     }
-    std::reverse(x.begin(), x.end());
-    x.pop_back();
 }
 
 int main() {
