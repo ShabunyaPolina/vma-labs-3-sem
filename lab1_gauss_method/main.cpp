@@ -41,10 +41,13 @@ void solve(std::vector<std::vector<float>> &a,
            std::vector<float> &b, std::vector<float> &x) {
     int n = (int)a.size();
     x.resize(n);
+    const float FLOAT_ZERO = 1e-07;  // машинный эквивалент нуля для типа float
     // прямой ход
     float l = 0;
     for(int k = 0; k < n - 1; ++k) {
         for(int i = k + 1; i < n; ++i) {
+            if(std::fabs(a[k][k]) < FLOAT_ZERO)
+                throw std::logic_error("Деление на ноль");
             l = a[i][k] / a[k][k];
             for(int j = k + 1; j < n; ++j) {
                 a[i][j] -= l * a[k][j];
@@ -68,23 +71,26 @@ void solve_with_item_selection(std::vector<std::vector<float>> &a,
            std::vector<float> &b, std::vector<float> &x) {
     int n = (int) a.size();
     x.resize(n);
-    std::vector<std::pair<int, int>> changed_indexes;
+    const float FLOAT_ZERO = 1e-07;  // машинный эквивалент нуля для типа float
+    std::vector<std::pair<int, int>> changed_indexes;  // пары индексов, элементы которых меняются местами
     float l = 0, max = 0, tmp = 0;
     int max_index = 0;
     // прямой ход
     for (int k = 0; k < n - 1; ++k) {
             // выбор максимального элемента в строке
-            max = a[k][k];
+            max = std::fabs(a[k][k]);
             max_index = k;
-            for (int j = k; j < n; ++j) {
-                if (a[k][j] > max) {
+            for (int j = k + 1; j < n; ++j) {
+                if (std::fabs(a[k][j]) > max) {
                     max = a[k][j];
                     max_index = j;
                 }
             }
-            // перестаноовка переменных
+            if(std::fabs(max) < FLOAT_ZERO)
+                throw std::logic_error("Неопределенная система");
+            // перестановка переменных
             if(max != a[k][k]) {
-                changed_indexes.emplace_back(k, max_index);
+                changed_indexes.emplace_back(k, max_index);  // сохраняет последовательность перестановок
                 for (int i = 0; i < n; ++i) {
                     tmp = a[i][k];
                     a[i][k] = a[i][max_index];
@@ -92,7 +98,9 @@ void solve_with_item_selection(std::vector<std::vector<float>> &a,
                 }
             }
         for (int i = k + 1; i < n; ++i) {
-            l = a[i][k] / a[k][k];  ///////////// 0
+            if(std::fabs(a[k][k]) < FLOAT_ZERO)
+                throw std::logic_error("Деление на ноль");
+            l = a[i][k] / a[k][k];
             for (int j = k + 1; j < n; ++j) {
                 a[i][j] -= l * a[k][j];
             }
@@ -116,15 +124,15 @@ void solve_with_item_selection(std::vector<std::vector<float>> &a,
     }
 }
 
-// генерирует СЛАУ размерности 10
+// генерирует СЛАУ размерности n
 void generate_system(std::vector<std::vector<float>> &a, std::vector<float> &f,
                      std::vector<float> &x, int n) {
     a.assign(n, std::vector<float>(n));
     f.resize(n);
     x.resize(n);
     srand ( time(nullptr) );
-    const int MIN_RAND = -10;
-    const int MAX_RAND = 10;
+    const int MIN_RAND = -100;
+    const int MAX_RAND = 100;
     // генерация матрицы А и вектора Х
     for(int i = 0; i < n; ++i) {
         for (int j = 0; j < n; ++j) {
@@ -144,9 +152,9 @@ void generate_system(std::vector<std::vector<float>> &a, std::vector<float> &f,
 float calculate_error(std::vector<float> &x, std::vector<float> &true_x) {
     float tmp = 0, max_delta = 0, max_true_x = 0;
     for(int i = 0; i < x.size(); ++i) {
-        tmp = x[i] - true_x[i];
-        if(std::fabs(tmp) > max_delta)
-            max_delta = std::fabs(tmp);
+        tmp = std::fabs(x[i] - true_x[i]);
+        if(tmp > max_delta)
+            max_delta = tmp;
         if(std::fabs(x[i]) > max_true_x)
             max_true_x = std::fabs(x[i]);
     }
@@ -183,7 +191,7 @@ int main() {
 
     solve_with_item_selection(a2, b2, x2);
     std::cout << "\nВектор решений системы методом Гаусса "
-                 "с выбором главного элемента по строке\n";
+                 "с выбором главного элемента по строке:\n";
     for(float i : x2) {
         std::cout << i << ' ';
     }
@@ -195,7 +203,6 @@ int main() {
         << error1
         << "\nПогрешность метода Гаусса с выбором главного элемента по строке: "
         << error2;
-    std::cout << std::endl;
 
     return 0;
 }
