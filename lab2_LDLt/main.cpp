@@ -239,12 +239,11 @@ int main() {
     }
     std::cout << '\n';
 
-    float er1 = 0, er2 = 0;
-    er1 = calculate_error(x1, x);
-    er2 = calculate_error(x2, x);
+    float er1 = calculate_error(x1, x);
+    float er2 = calculate_error(x2, x);
     std::cout << "\nПогрещность метода:\n";
     std::cout << "k = 0:  " << er1;
     std::cout << "\nk = 1:  " << er2;
-    
+
     return 0;
 }
