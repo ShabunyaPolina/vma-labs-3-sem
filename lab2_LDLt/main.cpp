@@ -49,7 +49,7 @@ void decompose(std::vector<std::vector<float>> &a) {
     for(int k = 0; k < n - 1; ++k) {
         for(int i = k + 1; i < n; ++i) {
             tmp[i] = a[i][k];
-            a[i][k] /= a[k][k];
+            a[i][k] /= (float)a[k][k];
             for(int j = k + 1; j <= i; ++j) {
                 a[i][j] -= a[i][k] * tmp[j];
             }
@@ -189,61 +189,74 @@ float calculate_error(std::vector<float> &x, std::vector<float> &true_x) {
 }
 
 int main() {
-    std::vector<std::vector<float>> a;
-    std::vector<std::vector<float>> a1;
-    std::vector<float> b;
-    std::vector<float> b1;
-    std::vector<float> x;
-    std::vector<float> x1;
-    std::vector<float> x2;
+//    std::vector<std::vector<float>> a;
+//    std::vector<std::vector<float>> a1;
+//    std::vector<float> b;
+//    std::vector<float> b1;
+//    std::vector<float> x;
+//    std::vector<float> x1;
+//    std::vector<float> x2;
+//
+//    generate_matrix(a, 12);
+//    a1 = a;
+//
+//    set_a00(a,0);
+//    set_a00(a1,1);
+//    calculate_b(a, b, x, 10);
+//    calculate_b(a1, b1, x, 10);
+//    std::cout << "СЛАУ:\n";
+//    std::cout << "\nk = 0\n";
+//    show_system(a, b);
+//    std::cout << "\nk = 1\n";
+//    show_system(a1, b1);
+//    std::cout << "\nПреобразованная матрица А (нижний треугольник - L "
+//                 "(за исключением главной диагонали), диагональ - D):\n";
+//
+//    std::cout << "\nk = 0\n";
+//    decompose(a);
+//    show_matrix(a);
+//    std::cout << "\nk = 1\n";
+//    decompose(a1);
+//    show_matrix(a1);
+//
+//    solve_system(a,b,x1);
+//    solve_system(a1,b1,x2);
+//
+//    std::cout << "\nВектор решений систем:\n";
+//    for(auto &i : x) {
+//        std::cout << i << ' ';
+//    }
+//    std::cout << '\n';
+//
+//    std::cout << "\nВекторы решений системы, полученные решением системы на основе LDLt разложения:";
+//    std::cout << "\nk = 0\n";
+//    for(auto &i : x1) {
+//        std::cout << i << ' ';
+//    }
+//    std::cout << "\nk = 1\n";
+//    for(auto &i : x2) {
+//        std::cout << i << ' ';
+//    }
+//    std::cout << '\n';
+//
+//    float er1 = calculate_error(x1, x);
+//    float er2 = calculate_error(x2, x);
+//    std::cout << "\nПогрешность метода:\n";
+//    std::cout << "k = 0:  " << er1;
+//    std::cout << "\nk = 1:  " << er2;
 
-    generate_matrix(a, 12);
-    a1 = a;
-
-    set_a00(a,0);
-    set_a00(a1,1);
-    calculate_b(a, b, x, 10);
-    calculate_b(a1, b1, x, 10);
-    std::cout << "СЛАУ:\n";
-    std::cout << "\nk = 0\n";
-    show_system(a, b);
-    std::cout << "\nk = 1\n";
-    show_system(a1, b1);
-    std::cout << "\nПреобразованная матрица А (нижний треугольник - L "
-                 "(за исключением главной диагонали), диагональ - D):\n";
-
-    std::cout << "\nk = 0\n";
-    decompose(a);
+//    std::vector<std::vector<float>> a{{1,-1,1},{-1,0.001, 0.001},{1,0.001,0.001}};
+    std::vector<std::vector<float>> a{{5,7,9},{5,3,7},{9,5,5}};
+    std::vector<std::vector<float>> l;
+    std::vector<std::vector<float>> d;
     show_matrix(a);
-    std::cout << "\nk = 1\n";
-    decompose(a1);
-    show_matrix(a1);
+    decompose(a);
+    toL(a, l);
+    toD(a, d);
+    std::cout << std::endl;
+    show_matrix(l);
+    //show_matrix(d);
 
-    solve_system(a,b,x1);
-    solve_system(a,b,x2);
-
-    std::cout << "\nВектор решений систем:\n";
-    for(auto &i : x) {
-        std::cout << i << ' ';
-    }
-    std::cout << '\n';
-
-    std::cout << "\nВекторы решений системы, полученный решением системы на основе LDLt разложения:";
-    std::cout << "\nk = 0\n";
-    for(auto &i : x1) {
-        std::cout << i << ' ';
-    }
-    std::cout << "\nk = 1\n";
-    for(auto &i : x2) {
-        std::cout << i << ' ';
-    }
-    std::cout << '\n';
-
-    float er1 = calculate_error(x1, x);
-    float er2 = calculate_error(x2, x);
-    std::cout << "\nПогрещность метода:\n";
-    std::cout << "k = 0:  " << er1;
-    std::cout << "\nk = 1:  " << er2;
 
     return 0;
 }
