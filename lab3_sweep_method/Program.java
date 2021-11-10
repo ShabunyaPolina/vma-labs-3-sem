@@ -6,17 +6,19 @@ import java.util.Arrays;
 
 public class Program {
 
-    static final int m = 10;
+    static final int m = 10;  // номер в списке группы
     static final int p = (m % 4) + 1;
     static final int q = m % 3;
-    static final int n = 10;
+    static final int n = 10; // размер матрицы
 
     public static void main(String[] args) {
         float[][] A = generateMatrix(n);
         System.out.println("Матрица A:");
         showMatrix(A);
 
-        float[] b = calculateB(A, m);
+        float[] x0 = generateX();
+
+        float[] b = calculateB(A, x0);
         System.out.println("Вектор B:\n" + Arrays.toString(b));
 
         System.out.println("\nРасширенная матрица:");
@@ -27,7 +29,6 @@ public class Program {
         float[][] newA = new float[A.length][A[0].length];
         float[] newB = new float[b.length];
 
-        float[] x0 = generateX(n);
         float[] x = solve(A, newA, b, newB);
 
         System.out.println("\nПреобразованная матрица:");
@@ -41,14 +42,14 @@ public class Program {
 
     // вывод матрицы
     public static void showMatrix(float[][] matrix) {
-        int n = matrix.length;
-        for (float[] floats : matrix) {
-            for (int j = 0; j < n; ++j) {
-                System.out.print(floats[j] + "  ");
+        for (float[] row : matrix) {
+            for (float element : row) {
+                System.out.print(element + "  ");
             }
             System.out.println();
         }
     }
+    // вывод расширенной матрицы
     public static void showExtendedMatrix(float[][] a, float[] b) {
         int n = a.length;
         for (int i = 0; i < n; ++i) {
@@ -73,7 +74,7 @@ public class Program {
     }
 
     // генерирует вектор x
-    private static float[] generateX(int n) {
+    private static float[] generateX() {
         float[] x = new float[n];
         for (int i = 0; i < n; ++i) {
             x[i] = m + i;
@@ -82,8 +83,7 @@ public class Program {
     }
 
     // вычисляет столбец b СЛАУ
-    public static float[] calculateB(float[][] a, int m) {
-        float[] x = generateX(a.length);
+    public static float[] calculateB(float[][] a, float[] x) {
         float[] b = new float[x.length];
         for (int i = 0; i < x.length; ++i) {
             for (int j = 0; j < x.length; ++j) {
