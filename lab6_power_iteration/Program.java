@@ -9,59 +9,65 @@ public class Program {
     static final int m = 10;  // номер в списке группы
     static final int n = 10;  // размер матриц
 
-    static double[] u0 = {1, 0, 0};
+    static double[] u0 = {1, 0, 0, 0, 0, 0, 0, 0, 0, 0};
 
     public static void main(String[] args) {
-        double[][] A = {
-                {1, 2, 3},
-                {2, 1, 2},
-                {3, 2, 1}};
 
+        double[][] A = generateMatrix(n);
+        System.out.println("Матрица А:");
         showMatrix(A);
 
-        System.out.println();
-        double[] v1 = calculateV(A, u0);
-        System.out.println(Arrays.toString(v1));
-        System.out.println();
-        System.out.println(calcVectCubicNorm(v1));
-        System.out.println();
-        double[] u1 = calculateU(v1);
-        System.out.println(Arrays.toString(u1));
-        System.out.println();
+        System.out.println("\nПЕРВОЕ СОБСТВЕННОЕ ЗНАЧЕНИЕ:");
+        double firstEigenvalue1 = 0;
+        double firstEigenvalue2 = 0;
+        double[] uk = new double[0];
+        System.out.println("Приближенное значение наибольшего " +
+                "по модулю собственного значения на ");
+        for (int k = 46; k <= 50; ++k) {
+            System.out.println(k + "-ой итерации:  ");
+            firstEigenvalue1 = calculateFirstEigenvalue1(A, u0, k);
+            System.out.print("(1 сп.) " + firstEigenvalue1);
+            firstEigenvalue2 = calculateFirstEigenvalue2(A, u0, k);
+            System.out.println("  (2 сп.) " + firstEigenvalue2);
+            uk = calculateU(calcFinalV(A, u0, k));
+            System.out.println("Собственный вектор:  " + Arrays.toString(uk));
+        }
 
-        double[] v2 = calculateV(A, u1);
-        System.out.println(Arrays.toString(v2));
-        System.out.println();
-        System.out.println(calcVectCubicNorm(v2));
-        System.out.println();
-        double[] u2 = calculateU(v2);
-        System.out.println(Arrays.toString(u2));
-        System.out.println();
+        double[] vk = calculateV(A, uk);  // V^(k+1)
+        double[] vectorToCheck1 = calculateVectorToCheck(vk, uk, firstEigenvalue1);
+        double[] vectorToCheck2 = calculateVectorToCheck(vk, uk, firstEigenvalue2);
+        System.out.println("\nВекторы для проверки: ");
+        System.out.println("(1) " + Arrays.toString(vectorToCheck1));
+        System.out.println("Кубическая норма:  " + calcVectCubicNorm(vectorToCheck1));
+        System.out.println("(2) " + Arrays.toString(vectorToCheck2));
+        System.out.println("Кубическая норма:  " + calcVectCubicNorm(vectorToCheck2));
 
-        double[] finalV = calcFinalV(A, u0, 4);
-        System.out.println(Arrays.toString(finalV));
-        double[] finalU = calculateU(finalV);
-        System.out.println(Arrays.toString(finalU));
-        double[] finalfinalV = calculateV(A, finalU);
-        System.out.println(Arrays.toString(finalfinalV));
-        System.out.println();
+        System.out.println("\nВТОРОЕ СОБСТВЕННОЕ ЗНАЧЕНИЕ:");
+        System.out.println("Приближенное значение второго по величине модуля собственное значение:");
+        System.out.println("m=30 (1):");
+        double secondEigenvalue = calculateSecondEigenvalue(A, u0, firstEigenvalue1, 30);
+        System.out.println(secondEigenvalue);
+        System.out.println("m=50 (1):");
+        secondEigenvalue = calculateSecondEigenvalue(A, u0, firstEigenvalue1, 50);
+        System.out.println(secondEigenvalue);
+        System.out.println("m=50 (2):");
+        secondEigenvalue = calculateSecondEigenvalue(A, u0, firstEigenvalue2, 50);
+        System.out.println(secondEigenvalue);
 
-        System.out.println(calculateFirstEigenvalue1(A, u0, 4));
-        System.out.println(calculateFirstEigenvalue2(A, u0, 4));
+        double[] v1 = calculateVectorToCheck(vk, uk, firstEigenvalue1);
+        double[] v2 = calculateVectorToCheck(vk, uk, firstEigenvalue2);
+        System.out.println("\nСобственные векторы:  " + "\n(1) " +
+                Arrays.toString(v1) +
+                "\n(2) " + Arrays.toString(v2));
 
-        System.out.println("Приближенный собственный вектор u^(k): " +
-                Arrays.toString(finalU));
-        System.out.println();
-
-        System.out.println(Arrays.toString(calculateVectorToCheck(finalfinalV,
-                finalU, calculateFirstEigenvalue1(A, u0, 4))));
-        System.out.println(Arrays.toString(calculateVectorToCheck(finalfinalV,
-                finalU, calculateFirstEigenvalue2(A, u0, 4))));
-
-        System.out.println(calcVectCubicNorm(calculateVectorToCheck(finalfinalV,
-                finalU, calculateFirstEigenvalue1(A, u0, 4))));
-        System.out.println(calcVectCubicNorm(calculateVectorToCheck(finalfinalV,
-                finalU, calculateFirstEigenvalue2(A, u0, 4))));
+        double[] vec1 = calculateVectorToCheck2(A, v1, secondEigenvalue);
+        double[] vec2 = calculateVectorToCheck2(A, v2, secondEigenvalue);
+        double[] vec3 = calculateVectorToCheck2(A, v2, secondEigenvalue);
+        System.out.println("\nВекторы для проверки: ");
+        System.out.println("(1) " + Arrays.toString(vec1));
+        System.out.println("Кубическая норма:  " + calcVectCubicNorm(vec1));
+        System.out.println("(2) " + Arrays.toString(vec2));
+        System.out.println("Кубическая норма:  " + calcVectCubicNorm(vec2));
     }
 
     // вывод матрицы
@@ -109,6 +115,52 @@ public class Program {
         return res;
     }
 
+    // умножает вектор на число
+    private static double[] multiply(double[] vector, double number) {
+        double[] res = new double[vector.length];
+        for (int i = 0; i < vector.length; ++i) {
+            res[i] = vector[i] * number;
+        }
+        return res;
+    }
+
+    // делит вектор на число
+    private static double[] divide(double[] vector, double number) {
+        double[] res = new double[vector.length];
+        for (int i = 0; i < vector.length; ++i) {
+            res[i] = vector[i] / number;
+        }
+        return res;
+    }
+
+    // вычисляет разность векторов
+    private static double[] subtract(double[] a, double[] b) {
+        double[] res = new double[a.length];
+        for (int i = 0; i < a.length; ++i) {
+            res[i] = a[i] - b[i];
+        }
+        return res;
+    }
+
+    // вычисляет скалярное произведение векторов
+    private static double calculateScalarProduct(double[] a, double[] b) {
+        double res = 0;
+        for (int i = 0; i < a.length; ++i) {
+            res += a[i] * b[i];
+        }
+        return res;
+    }
+
+    // вычисляет кубическую норму вектора
+    private static double calcVectCubicNorm(double[] vector) {
+        double max = 0;
+        for (double element : vector) {
+            if (element > max)
+                max = element;
+        }
+        return max;
+    }
+
     // вычисляет вектор V на следующей итерации
     private static double[] calculateV(double[][] A, double[] u) {
         return multiply(A, u);
@@ -129,6 +181,16 @@ public class Program {
         return calculateV(A, u);
     }
 
+    // возвращает индекс наибольшей по модулю компоненты вектора
+    private static int chooseComponent(double[] vk) {
+        int maxIndex = 0;
+        for (int i = 1; i < vk.length; ++i) {
+            if (Math.abs(vk[i]) > vk[maxIndex])
+                maxIndex = i;
+        }
+        return maxIndex;
+    }
+
     // вычисляет наибольшее по модулю собственное значение матрицы А (1 способ)
     private static double calculateFirstEigenvalue1(double[][] A, double[] u0, int k) {
         double[] vk = calcFinalV(A, u0, k);  // V^(k)
@@ -141,57 +203,9 @@ public class Program {
     // вычисляет наибольшее по модулю собственное значение матрицы А (2 способ)
     private static double calculateFirstEigenvalue2(double[][] A, double[] u0, int k) {
         double[] vk = calcFinalV(A, u0, k);  // V^(k)
-        int i = chooseComponent(vk);
         double[] uk = calculateU(vk);  // U^(k)
         vk = calculateV(A, uk);  // V^(k+1)
         return calculateScalarProduct(vk, uk) / calculateScalarProduct(uk, uk);
-    }
-
-    // выбирает номер компоненты векторов V и U для вычисления первого СЗ (max|V^(k)i|)
-    private static int chooseComponent(double[] vk) {
-        int maxIndex = 0;
-        for (int i = 1; i < vk.length; ++i) {
-            if (vk[i] > vk[maxIndex])
-                maxIndex = i;
-        }
-        return maxIndex;
-    }
-
-    // вычисляет скалярное произведение векторов
-    private static double calculateScalarProduct(double[] a, double[] b) {
-        double res = 0;
-        for(int i = 0; i < a.length; ++i) {
-            res += a[i] * b[i];
-        }
-        return res;
-    }
-
-    // делит вектор на число
-    private static double[] divide(double[] vector, double number) {
-        double[] res = new double[vector.length];
-        for (int i = 0; i < vector.length; ++i) {
-            res[i] = vector[i] / number;
-        }
-        return res;
-    }
-
-    // умножает вектор на число
-    private static double[] multiply(double[] vector, double number) {
-        double[] res = new double[vector.length];
-        for (int i = 0; i < vector.length; ++i) {
-            res[i] = vector[i] * number;
-        }
-        return res;
-    }
-
-    // вычисляет кубическую норму вектора
-    private static double calcVectCubicNorm(double[] vector) {
-        double max = 0;
-        for (double element : vector) {
-            if (element > max)
-                max = element;
-        }
-        return max;
     }
 
     // вычисляет вектор V^(k+1)-lambda1*U^(k)
@@ -199,22 +213,20 @@ public class Program {
         return subtract(vk, multiply(uk, lambda));
     }
 
-    // вычисляет разность векторов
-    private static double[] subtract(double[] a, double[] b) {
-        double[] res = new double[a.length];
-        for(int i = 0; i < a.length; ++i) {
-            res[i] = a[i] - b[i];
-        }
-        return res;
+    // вычисляет второе по величине молудя СЗ матрицы А
+    private static double calculateSecondEigenvalue(double[][] A, double[] u0,
+                                                    double firstEigenvalue, int m) {
+        double[] vm = calcFinalV(A, u0, m - 1);  // V^(m-1)
+        double[] um = calculateU(vm);  // U^(m-1)
+        int i = chooseComponent(calculateVectorToCheck(vm, um, firstEigenvalue));
+        vm = calculateV(A, um);  // V^(m)
+        double[] vm1 = calculateV(A, calculateU(vm));  // V^(m+1)
+        return ((vm1[i] * calcVectCubicNorm(vm) - firstEigenvalue * vm[i])
+                / (vm[i] - firstEigenvalue * um[i]));
     }
 
-    // вычисляет второе по величине молудя СЗ матрицы А
-    private static double calculateSecondEigenvalue(double[][] A, double[] u0, int k) {
-//        double[] vk = calcFinalV(A, u0, k);  // V^(k)
-//        int i = chooseComponent(vk);
-//        double[] uk = calculateU(vk);  // U^(k)
-//        vk = calculateV(A, uk);  // V^(k+1)
-//        return vk[i] * Math.signum(uk[i]);
-        return 1.1;
+    private static double[] calculateVectorToCheck2(double[][] A, double[] vec,
+                                                    double secondEigenvalue) {
+        return subtract(multiply(A, vec), multiply(vec, secondEigenvalue));
     }
 }
